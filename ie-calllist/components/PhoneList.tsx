@@ -40,7 +40,7 @@ export function PhoneList({ stationId, stationName, callLetters, phones }: Phone
           className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-700/30 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-left group"
         >
           {/* Phone icon */}
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+          <div className="shrink-0 w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -72,7 +72,7 @@ export function PhoneList({ stationId, stationName, callLetters, phones }: Phone
           </div>
 
           {/* Call indicator */}
-          <div className="flex-shrink-0 text-gray-300 dark:text-gray-600 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">
+          <div className="shrink-0 text-gray-300 dark:text-gray-600 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">
             <svg
               className="w-4 h-4"
               fill="none"
