@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  pinHash   String
+  role      String   @default("producer") // "producer" | "admin"
+  createdAt DateTime @default(now())
+  
+  callLogs  CallLog[]
+  editLogs  EditLog[]
+}
+
+model Station {
+  id              String   @id @default(uuid())
+  marketNumber    Int
+  marketName      String
+  callLetters     String
+  feed            String   // "3pm" | "5pm" | "6pm"
+  broadcastStatus String?  // "live" | "rerack" | "might" | null
+  airTimeLocal    String
+  airTimeET       String
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  phones    PhoneNumber[]
+  callLogs  CallLog[]
+  editLogs  EditLog[]
+
+  @@unique([marketNumber, feed])
+}
+
+model PhoneNumber {
+  id        String   @id @default(uuid())
+  stationId String
+  label     String
+  number    String
+  sortOrder Int      @default(1)
+  createdAt DateTime @default(now())
+
+  station  Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  callLogs CallLog[]
+}
+
+model CallLog {
+  id          String   @id @default(uuid())
+  stationId   String
+  phoneId     String
+  phoneNumber String   // Snapshot of number called
+  calledBy    String
+  createdAt   DateTime @default(now())
+
+  station Station     @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  phone   PhoneNumber @relation(fields: [phoneId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [calledBy], references: [id], onDelete: Cascade)
+}
+
+model EditLog {
+  id        String   @id @default(uuid())
+  stationId String
+  field     String
+  oldValue  String
+  newValue  String
+  editedBy  String
+  createdAt DateTime @default(now())
+
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [editedBy], references: [id], onDelete: Cascade)
+}
