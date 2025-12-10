@@ -6,11 +6,16 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const tursoUrl = process.env.TURSO_DATABASE_URL;
+  // Prefer explicit Turso env vars, but fall back to DATABASE_URL in production
+  let tursoUrl = process.env.TURSO_DATABASE_URL;
   const tursoToken = process.env.TURSO_AUTH_TOKEN;
 
+  if (!tursoUrl || tursoUrl === 'undefined') {
+    tursoUrl = process.env.DATABASE_URL;
+  }
+
   // Use Turso adapter if we have credentials (production)
-  if (tursoUrl && tursoToken) {
+  if (tursoUrl && tursoToken && tursoUrl.startsWith('libsql://')) {
     // Dynamically import adapter to avoid build issues
     const { PrismaLibSql } = require('@prisma/adapter-libsql');
     const { createClient } = require('@libsql/client');
