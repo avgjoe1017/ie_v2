@@ -45,7 +45,7 @@ export default async function CallLogsPage() {
       month: 'short',
       day: 'numeric',
     });
-    
+
     if (!acc[date]) {
       acc[date] = [];
     }
@@ -53,13 +53,16 @@ export default async function CallLogsPage() {
     return acc;
   }, {} as Record<string, typeof logs>);
 
-  const today = new Date().toLocaleDateString('en-US', {
+  const todayDate = new Date();
+  const today = todayDate.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'short',
     day: 'numeric',
   });
 
-  const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-US', {
+  const yesterdayDate = new Date(todayDate);
+  yesterdayDate.setDate(todayDate.getDate() - 1);
+  const yesterday = yesterdayDate.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'short',
     day: 'numeric',
@@ -90,7 +93,7 @@ export default async function CallLogsPage() {
               <div className="bg-white rounded-2xl divide-y divide-gray-200 border border-gray-200 shadow-sm overflow-hidden">
                 {dateLogs.map((log) => (
                   <div key={log.id} className="p-4 flex items-center gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <div className="shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                       </svg>

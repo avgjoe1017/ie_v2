@@ -36,7 +36,7 @@ export default async function EditLogsPage() {
       month: 'short',
       day: 'numeric',
     });
-    
+
     if (!acc[date]) {
       acc[date] = [];
     }
@@ -44,13 +44,16 @@ export default async function EditLogsPage() {
     return acc;
   }, {} as Record<string, typeof logs>);
 
-  const today = new Date().toLocaleDateString('en-US', {
+  const todayDate = new Date();
+  const today = todayDate.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'short',
     day: 'numeric',
   });
 
-  const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-US', {
+  const yesterdayDate = new Date(todayDate);
+  yesterdayDate.setDate(todayDate.getDate() - 1);
+  const yesterday = yesterdayDate.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'short',
     day: 'numeric',

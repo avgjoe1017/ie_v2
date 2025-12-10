@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validatePin, createSession, setSessionCookie } from '@/lib/auth';
-import { LoginSchema } from '@/domain/contracts';
+import { LoginSchema, type Role } from '@/domain/contracts';
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const token = await createSession({
       id: user.id,
       name: user.name,
-      role: user.role,
+      role: user.role as Role,
     });
 
     // Set cookie

@@ -461,3 +461,28 @@
 
 **Decision:** Followed lint guidance to prefer `const` for non-reassigned bindings to keep the import route clean and consistent with project style.
 
+## December 10, 2025 - Login Route Role Narrowing
+
+**Time:** Current session  
+**Changes:**
+- Adjusted `app/api/auth/login/route.ts` so the `createSession` call explicitly narrows `user.role` to the shared `Role` union from `domain/contracts.ts`, resolving the TypeScript error about assigning `string` to `"viewer" | "producer" | "admin"` while keeping runtime behavior unchanged.
+
+**Decision:** Used a simple type narrowing cast at the auth boundary since the database already constrains role values, avoiding broader schema changes while keeping types aligned with the new three-level permission model.
+
+## December 10, 2025 - Call Logs Date Impurity Fix
+
+**Time:** Current session  
+**Changes:**
+- Refactored `app/logs/calls/page.tsx` to compute `today` and `yesterday` using `new Date()` and `setDate` instead of calling `Date.now` directly during render, satisfying React’s purity rules while keeping the “Today / Yesterday” labels behavior identical.
+
+**Decision:** Avoided `Date.now` in server component render paths to align with React’s impure-function restrictions, reusing a single `todayDate` instance to derive both labels for consistency.
+
+## December 10, 2025 - Edit Logs Date Impurity Fix
+
+**Time:** Current session  
+**Changes:**
+- Applied the same `new Date()` / `setDate` pattern to `app/logs/edits/page.tsx` to replace the `Date.now`-based `yesterday` calculation, eliminating the impure-function warning while preserving the “Today / Yesterday” grouping behavior in the edit history view.
+
+**Decision:** Kept the date-labeling logic consistent across call and edit logs while adhering to React’s purity requirements for server components.
+
+
