@@ -100,36 +100,36 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        // Prepare phones
+        // Prepare phones (allow missing names, use sensible fallbacks)
         const phones: { label: string; number: string; sortOrder: number }[] = [];
-        
-        if (row['Main Name'] && row['Main Phone']) {
-          const number = parseCSVPhone(row['Main Phone']);
-          if (number) {
-            phones.push({ label: row['Main Name'], number, sortOrder: 1 });
-          }
-        }
-        
-        if (row['#2 Name'] && row['Phone #2']) {
-          const number = parseCSVPhone(row['Phone #2']);
-          if (number) {
-            phones.push({ label: row['#2 Name'], number, sortOrder: 2 });
-          }
-        }
-        
-        if (row['#3 Name'] && row['Phone #3']) {
-          const number = parseCSVPhone(row['Phone #3']);
-          if (number) {
-            phones.push({ label: row['#3 Name'], number, sortOrder: 3 });
-          }
-        }
-        
-        if (row['#4 Name'] && row['Phone #4']) {
-          const number = parseCSVPhone(row['Phone #4']);
-          if (number) {
-            phones.push({ label: row['#4 Name'], number, sortOrder: 4 });
-          }
-        }
+
+        // Helper to push a phone if there is at least a number
+        const pushPhone = (
+          rawName: string | undefined,
+          rawNumber: string | undefined,
+          sortOrder: number,
+          fallbackLabel: string
+        ) => {
+          if (!rawNumber) return;
+          const number = parseCSVPhone(rawNumber);
+          if (!number) return;
+
+          const baseLabel =
+            (rawName && rawName.trim()) ||
+            (row.Station && row.Station.trim()) ||
+            fallbackLabel;
+
+          phones.push({
+            label: baseLabel,
+            number,
+            sortOrder,
+          });
+        };
+
+        pushPhone(row['Main Name'], row['Main Phone'], 1, 'Main');
+        pushPhone(row['#2 Name'], row['Phone #2'], 2, 'Alternate');
+        pushPhone(row['#3 Name'], row['Phone #3'], 3, 'Backup');
+        pushPhone(row['#4 Name'], row['Phone #4'], 4, 'Other');
 
         // Check if station exists
         const existing = await prisma.station.findUnique({
