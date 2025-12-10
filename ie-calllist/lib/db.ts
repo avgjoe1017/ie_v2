@@ -9,17 +9,19 @@ function createPrismaClient() {
   const tursoUrl = process.env.TURSO_DATABASE_URL;
   const tursoToken = process.env.TURSO_AUTH_TOKEN;
 
-  // Use Turso with direct URL (HTTP protocol) if we have credentials
+  // Use Turso adapter if we have credentials (production)
   if (tursoUrl && tursoToken) {
-    // Construct the DATABASE_URL with auth token for Prisma
-    const databaseUrl = `${tursoUrl}?authToken=${tursoToken}`;
-    return new PrismaClient({
-      datasources: {
-        db: {
-          url: databaseUrl,
-        },
-      },
+    // Dynamically import adapter to avoid build issues
+    const { PrismaLibSql } = require('@prisma/adapter-libsql');
+    const { createClient } = require('@libsql/client');
+    
+    const libsql = createClient({
+      url: tursoUrl,
+      authToken: tursoToken,
     });
+
+    const adapter = new PrismaLibSql(libsql);
+    return new PrismaClient({ adapter });
   }
 
   // Use local SQLite for development
