@@ -47,6 +47,10 @@ export async function PUT(
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    // Read-only users cannot modify stations
+    if (session.role === 'viewer') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { id } = await params;
     const body = await request.json();

@@ -14,7 +14,7 @@ export default function AdminUsersPage() {
   // Form state
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
-  const [role, setRole] = useState<'producer' | 'admin'>('producer');
+  const [role, setRole] = useState<'viewer' | 'producer' | 'admin'>('producer');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -89,7 +89,10 @@ export default function AdminUsersPage() {
   const startEdit = (user: User) => {
     setEditingId(user.id);
     setName(user.name);
-    setRole(user.role as 'producer' | 'admin');
+    // Fallback: treat any unknown role as producer
+    const safeRole: 'viewer' | 'producer' | 'admin' =
+      user.role === 'viewer' || user.role === 'admin' ? user.role : 'producer';
+    setRole(safeRole);
     setPin('');
   };
 
@@ -179,15 +182,18 @@ export default function AdminUsersPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Role
+                    Permissions
                   </label>
                   <select
                     value={role}
-                    onChange={(e) => setRole(e.target.value as 'producer' | 'admin')}
+                    onChange={(e) =>
+                      setRole(e.target.value as 'viewer' | 'producer' | 'admin')
+                    }
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   >
-                    <option value="producer">Producer</option>
-                    <option value="admin">Admin</option>
+                    <option value="viewer">Read only</option>
+                    <option value="producer">Read &amp; write</option>
+                    <option value="admin">Admin (full)</option>
                   </select>
                 </div>
               </div>
@@ -234,11 +240,14 @@ export default function AdminUsersPage() {
                       />
                       <select
                         value={role}
-                        onChange={(e) => setRole(e.target.value as 'producer' | 'admin')}
+                        onChange={(e) =>
+                          setRole(e.target.value as 'viewer' | 'producer' | 'admin')
+                        }
                         className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       >
-                        <option value="producer">Producer</option>
-                        <option value="admin">Admin</option>
+                        <option value="viewer">Read only</option>
+                        <option value="producer">Read &amp; write</option>
+                        <option value="admin">Admin (full)</option>
                       </select>
                     </div>
                     <div className="flex gap-2">
@@ -264,7 +273,12 @@ export default function AdminUsersPage() {
                         {user.name}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {user.role} • Created {new Date(user.createdAt).toLocaleDateString()}
+                        {user.role === 'admin'
+                          ? 'Admin (full)'
+                          : user.role === 'viewer'
+                          ? 'Read only'
+                          : 'Read & write'}{' '}
+                        • Created {new Date(user.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex gap-2">

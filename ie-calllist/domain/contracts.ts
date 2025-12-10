@@ -7,7 +7,11 @@ export type Feed = z.infer<typeof FeedEnum>;
 export const BroadcastStatusEnum = z.enum(['live', 'rerack', 'might']);
 export type BroadcastStatus = z.infer<typeof BroadcastStatusEnum>;
 
-export const RoleEnum = z.enum(['producer', 'admin']);
+// Roles:
+// - viewer  -> read only
+// - producer -> read & write (no admin)
+// - admin   -> full access
+export const RoleEnum = z.enum(['viewer', 'producer', 'admin']);
 export type Role = z.infer<typeof RoleEnum>;
 
 // Phone Number Schema
@@ -78,13 +82,20 @@ export const UserSchema = z.object({
 
 export const CreateUserSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  pin: z.string().length(6, 'PIN must be 6 digits').regex(/^\d+$/, 'PIN must be numeric'),
+  pin: z
+    .string()
+    .length(6, 'PIN must be 6 digits')
+    .regex(/^\d+$/, 'PIN must be numeric'),
   role: RoleEnum.default('producer'),
 });
 
 export const UpdateUserSchema = z.object({
   name: z.string().min(1).optional(),
-  pin: z.string().length(6).regex(/^\d+$/).optional(),
+  pin: z
+    .string()
+    .length(6)
+    .regex(/^\d+$/)
+    .optional(),
   role: RoleEnum.optional(),
 });
 

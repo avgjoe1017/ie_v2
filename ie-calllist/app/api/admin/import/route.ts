@@ -26,7 +26,14 @@ function parseCSV(text: string): CSVRow[] {
   const lines = text.trim().split('\n');
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(',').map((h) => h.trim());
+  // Map CSV headers, normalizing blank second column to 'Status'
+  const headers = lines[0].split(',').map((h, index) => {
+    const trimmed = h.trim();
+    if (!trimmed && index === 1) {
+      return 'Status';
+    }
+    return trimmed;
+  });
   const rows: CSVRow[] = [];
 
   for (let i = 1; i < lines.length; i++) {
@@ -88,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     let created = 0;
     let updated = 0;
-    let errors: string[] = [];
+    const errors: string[] = [];
 
     for (const row of rows) {
       try {

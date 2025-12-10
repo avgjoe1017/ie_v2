@@ -424,3 +424,32 @@
 
 📖 **See `MD_DOCS/DEPLOYMENT_READY.md` for complete step-by-step instructions**
 
+## December 10, 2025 - User Permissions Refinement
+
+**Time:** Current session  
+**Changes:**
+- Extended role model in `domain/contracts.ts` to support three explicit permission levels:
+  - `viewer` → read-only
+  - `producer` → read & write (no admin)
+  - `admin` → full access
+- Updated `/admin/users` page (`app/admin/users/page.tsx`) so admins can add/edit/delete users with:
+  - Name
+  - PIN (6 digits)
+  - Permissions dropdown with labels: "Read only", "Read & write", "Admin (full)"
+- Ensured existing users with unknown/legacy roles fall back safely to `producer` in the UI.
+- Tightened API authorization to enforce read-only behavior for `viewer` role:
+  - `PUT /api/markets/[id]` now blocks viewers from editing stations
+  - `POST /api/markets/[id]/phones` blocks viewers from adding phones
+  - `PUT`/`DELETE /api/markets/[id]/phones/[phoneId]` block viewers from editing/deleting phones
+  - `POST /api/call-logs` blocks viewers from creating call logs (no dialing from app)
+
+**Decision:** Kept existing `producer` and `admin` role semantics to avoid breaking current users, while introducing a new `viewer` role to satisfy the requirement for explicit read-only access. Mapped the three levels to user-facing labels in the admin UI so admins can clearly assign "read", "read & write", and "admin (full)" permissions when managing PINs.
+
+## December 10, 2025 - Minor Lint Cleanup
+
+**Time:** Current session  
+**Changes:**
+- Updated `app/api/admin/import/route.ts` to declare the `errors` collection with `const` instead of `let` since the binding is never reassigned, only mutated via `.push`, resolving the ESLint warning (`'errors' is never reassigned. Use 'const' instead.`).  
+
+**Decision:** Followed lint guidance to prefer `const` for non-reassigned bindings to keep the import route clean and consistent with project style.
+

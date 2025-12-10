@@ -13,6 +13,10 @@ export async function PUT(
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    // Read-only users cannot modify phones
+    if (session.role === 'viewer') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { id: stationId, phoneId } = await params;
     const body = await request.json();
@@ -86,6 +90,10 @@ export async function DELETE(
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    // Read-only users cannot modify phones
+    if (session.role === 'viewer') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { id: stationId, phoneId } = await params;
