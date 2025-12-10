@@ -32,7 +32,9 @@ interface StationListProps {
 export function StationList({ stations }: StationListProps) {
   const { feedFilter, searchQuery, sortByTime } = useFilterStore();
 
-  // Parse ET time string (e.g., "3:00 PM", "7:00PM & 11:35PM") to minutes since midnight
+  // Parse ET time string (e.g., "3:00 PM", "7:00PM & 11:35PM") to sortable minutes.
+  // Business rule: treat 3:00 PM ET as the baseline "earliest" time.
+  // Any ET earlier than 3:00 PM (e.g., 1:37 AM next day) is pushed AFTER that window.
   function parseEtMinutes(time: string): number {
     if (!time) return Number.MAX_SAFE_INTEGER;
 
@@ -48,7 +50,14 @@ export function StationList({ stations }: StationListProps) {
       if (ampm === 'PM' && h < 12) h += 12;
       if (ampm === 'AM' && h === 12) h = 0;
 
-      const total = h * 60 + m;
+      let total = h * 60 + m;
+
+      // 3:00 PM baseline in minutes
+      const threePm = 15 * 60;
+      // If this time is earlier than 3 PM, treat it as "next day" so it sorts after
+      if (total < threePm) {
+        total += 24 * 60;
+      }
       if (total < best) best = total;
     }
 
