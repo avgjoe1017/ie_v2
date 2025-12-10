@@ -13,7 +13,7 @@ interface CSVRow {
   'Air Time': string;
   'ET Time': string;
   'Main Name': string;
-  'Main Phone': string;
+  'Main Phone #': string; // matches CSV header exactly
   '#2 Name': string;
   'Phone #2': string;
   '#3 Name': string;
@@ -126,7 +126,8 @@ export async function POST(request: NextRequest) {
           });
         };
 
-        pushPhone(row['Main Name'], row['Main Phone'], 1, 'Main');
+        // Note: CSV column is 'Main Phone #' (with #)
+        pushPhone(row['Main Name'], row['Main Phone #'], 1, 'Main');
         pushPhone(row['#2 Name'], row['Phone #2'], 2, 'Alternate');
         pushPhone(row['#3 Name'], row['Phone #3'], 3, 'Backup');
         pushPhone(row['#4 Name'], row['Phone #4'], 4, 'Other');
