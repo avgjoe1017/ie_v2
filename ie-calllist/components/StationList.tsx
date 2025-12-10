@@ -30,7 +30,30 @@ interface StationListProps {
 }
 
 export function StationList({ stations }: StationListProps) {
-  const { feedFilter, searchQuery } = useFilterStore();
+  const { feedFilter, searchQuery, sortByTime } = useFilterStore();
+
+  // Parse ET time string (e.g., "3:00 PM", "7:00PM & 11:35PM") to minutes since midnight
+  function parseEtMinutes(time: string): number {
+    if (!time) return Number.MAX_SAFE_INTEGER;
+
+    const re = /(\d{1,2}):(\d{2})\s*(AM|PM)?/gi;
+    let match: RegExpExecArray | null;
+    let best = Number.MAX_SAFE_INTEGER;
+
+    while ((match = re.exec(time)) !== null) {
+      let h = parseInt(match[1], 10);
+      const m = parseInt(match[2], 10);
+      const ampm = (match[3] || '').toUpperCase();
+
+      if (ampm === 'PM' && h < 12) h += 12;
+      if (ampm === 'AM' && h === 12) h = 0;
+
+      const total = h * 60 + m;
+      if (total < best) best = total;
+    }
+
+    return best;
+  }
 
   // Initialize Fuse.js for fuzzy search
   const fuse = useMemo(
@@ -50,6 +73,7 @@ export function StationList({ stations }: StationListProps) {
   // Filter and search stations
   const filteredStations = useMemo(() => {
     let result = stations;
+    let scoreMap: Map<string, number> | null = null;
 
     // Apply feed filter
     if (feedFilter !== 'all') {
@@ -61,17 +85,30 @@ export function StationList({ stations }: StationListProps) {
       const searchResults = fuse.search(searchQuery);
       const searchIds = new Set(searchResults.map((r) => r.item.id));
       result = result.filter((s) => searchIds.has(s.id));
-      
-      // Sort by search relevance
-      const scoreMap = new Map(searchResults.map((r) => [r.item.id, r.score || 1]));
-      result.sort((a, b) => (scoreMap.get(a.id) || 1) - (scoreMap.get(b.id) || 1));
+
+      // Capture search relevance scores for optional use
+      scoreMap = new Map(searchResults.map((r) => [r.item.id, r.score || 1]));
+    }
+
+    // Apply sorting
+    if (sortByTime) {
+      // Sort by ET airtime ascending (earliest first), then by marketNumber
+      result = [...result].sort((a, b) => {
+        const diff = parseEtMinutes(a.airTimeET) - parseEtMinutes(b.airTimeET);
+        return diff !== 0 ? diff : a.marketNumber - b.marketNumber;
+      });
+    } else if (searchQuery.trim() && scoreMap) {
+      // Sort by search relevance when searching and not sorting by time
+      result = [...result].sort(
+        (a, b) => (scoreMap!.get(a.id) || 1) - (scoreMap!.get(b.id) || 1)
+      );
     } else {
-      // Sort by market number when not searching
+      // Default sort: market number
       result = [...result].sort((a, b) => a.marketNumber - b.marketNumber);
     }
 
     return result;
-  }, [stations, feedFilter, searchQuery, fuse]);
+  }, [stations, feedFilter, searchQuery, sortByTime, fuse]);
 
   if (filteredStations.length === 0) {
     return (

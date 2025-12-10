@@ -5,17 +5,24 @@ import type { Feed } from '@/domain/contracts';
 interface FilterState {
   feedFilter: Feed | 'all';
   searchQuery: string;
+  sortByTime: boolean;
   setFeedFilter: (feed: Feed | 'all') => void;
   setSearchQuery: (query: string) => void;
+  toggleSortByTime: () => void;
   clearFilters: () => void;
 }
 
 export const useFilterStore = create<FilterState>()((set) => ({
   feedFilter: 'all',
   searchQuery: '',
+  sortByTime: false,
   setFeedFilter: (feed) => set({ feedFilter: feed }),
   setSearchQuery: (query) => set({ searchQuery: query }),
-  clearFilters: () => set({ feedFilter: 'all', searchQuery: '' }),
+  toggleSortByTime: () =>
+    set((state) => ({
+      sortByTime: !state.sortByTime,
+    })),
+  clearFilters: () => set({ feedFilter: 'all', searchQuery: '', sortByTime: false }),
 }));
 
 interface ThemeState {

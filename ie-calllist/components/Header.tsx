@@ -19,7 +19,8 @@ const filters: Array<{ value: Feed | 'all'; label: string; displayLabel: string 
 
 export function Header({ showBack = false, title }: HeaderProps) {
   const router = useRouter();
-  const { searchQuery, setSearchQuery, feedFilter, setFeedFilter } = useFilterStore();
+  const { searchQuery, setSearchQuery, feedFilter, setFeedFilter, sortByTime, toggleSortByTime } =
+    useFilterStore();
 
   if (showBack) {
     return (
@@ -43,6 +44,21 @@ export function Header({ showBack = false, title }: HeaderProps) {
           )}
 
           <div className="flex items-center gap-2">
+            {/* HOME button */}
+            <Link
+              href="/stations"
+              className="p-2 rounded-lg text-zinc-800 hover:text-blue-600 hover:bg-gray-100 transition-colors"
+              aria-label="Home"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 12l9-7 9 7M5 10v10a1 1 0 001 1h4m4 0h4a1 1 0 001-1V10"
+                />
+              </svg>
+            </Link>
             <Link
               href="/logs/calls"
               className="p-2 rounded-lg text-zinc-800 hover:text-blue-600 hover:bg-gray-100 transition-colors"
@@ -156,6 +172,22 @@ export function Header({ showBack = false, title }: HeaderProps) {
               </button>
             );
           })}
+
+          {/* Sort by Time toggle */}
+          <button
+            onClick={toggleSortByTime}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
+              sortByTime
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'bg-gray-100 text-gray-600 border border-transparent hover:border-gray-300'
+            }`}
+            aria-pressed={sortByTime}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h8M8 12h5M8 17h2" />
+            </svg>
+            <span>Sort ET</span>
+          </button>
         </div>
       </div>
     </div>
