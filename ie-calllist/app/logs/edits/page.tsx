@@ -97,7 +97,7 @@ export default async function EditLogsPage() {
                         </p>
                       </div>
                       
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right shrink-0">
                         <p className="text-sm text-gray-500">
                           {new Date(log.createdAt).toLocaleTimeString('en-US', {
                             hour: 'numeric',

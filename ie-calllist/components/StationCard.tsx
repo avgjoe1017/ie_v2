@@ -17,7 +17,8 @@ interface StationCardProps {
   marketName: string;
   marketNumber: number;
   feed: Feed;
-  broadcastStatus: 'live' | 'rerack' | 'might' | null;
+  // Allow raw string to be defensive against any legacy/uppercase values
+  broadcastStatus: 'live' | 'rerack' | 'might' | null | string;
   airTimeLocal: string;
   airTimeET: string;
   phones: Phone[];
@@ -75,6 +76,27 @@ export function StationCard({
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
       .join(' ');
+  };
+
+  const renderStatusBadge = () => {
+    if (!broadcastStatus) return null;
+
+    const status = String(broadcastStatus).toLowerCase();
+
+    let label = 'MIGHT';
+    if (status === 'live') label = 'LIVE';
+    else if (status === 'rerack') label = 'RERACK';
+
+    return (
+      <div
+        className="h-3.5 px-2 py-1.5 rounded-xl inline-flex justify-center items-center gap-1"
+        style={{ backgroundColor: getFeedColor(feed) }}
+      >
+        <div className="text-white text-[10px] font-semibold font-['Inter']">
+          {label}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -142,16 +164,7 @@ export function StationCard({
               >
                 {getFeedLabel(feed)}
               </span>
-              {broadcastStatus && (
-                <div
-                  className="h-3.5 px-2 py-1.5 rounded-xl inline-flex justify-center items-center gap-1"
-                  style={{ backgroundColor: getFeedColor(feed) }}
-                >
-                  <div className="text-white text-[10px] font-semibold font-['Inter']">
-                    {broadcastStatus === 'live' ? 'LIVE' : broadcastStatus === 'rerack' ? 'RERACK' : 'MIGHT'}
-                  </div>
-                </div>
-              )}
+              {renderStatusBadge()}
             </div>
           </div>
         </a>
@@ -174,6 +187,16 @@ export function StationCard({
               <span className="text-neutral-800 text-xs font-normal font-['Inter']">
                 {callLetters}
               </span>
+            </div>
+
+            <div className="h-3.5 flex items-center gap-2 flex-wrap mt-2">
+              <span
+                className="text-[10px] font-bold font-['Inter'] leading-4 tracking-tight"
+                style={{ color: getFeedColor(feed) }}
+              >
+                {getFeedLabel(feed)}
+              </span>
+              {renderStatusBadge()}
             </div>
           </div>
         </div>
