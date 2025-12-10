@@ -1,39 +1,38 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaLibSql } from '@prisma/adapter-libsql';
 
 // Prevent multiple instances of Prisma Client in development
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-function createPrismaClient() {
-  // Prefer explicit Turso env vars, but fall back to DATABASE_URL in production
-  let tursoUrl = process.env.TURSO_DATABASE_URL;
+function prismaClientSingleton() {
+  const tursoUrl = process.env.TURSO_DATABASE_URL;
   const tursoToken = process.env.TURSO_AUTH_TOKEN;
 
-  if (!tursoUrl || tursoUrl === 'undefined') {
-    tursoUrl = process.env.DATABASE_URL;
-  }
+  if (process.env.NODE_ENV === 'production') {
+    if (!tursoUrl) {
+      throw new Error('TURSO_DATABASE_URL is not set in production');
+    }
+    if (!tursoToken) {
+      throw new Error('TURSO_AUTH_TOKEN is not set in production');
+    }
 
-  // Use Turso adapter if we have credentials (production)
-  if (tursoUrl && tursoToken && tursoUrl.startsWith('libsql://')) {
-    // Dynamically import adapter to avoid build issues
-    const { PrismaLibSql } = require('@prisma/adapter-libsql');
-    const { createClient } = require('@libsql/client');
-    
-    const libsql = createClient({
+    // 1. Create adapter directly from URL + token
+    const adapter = new PrismaLibSql({
       url: tursoUrl,
       authToken: tursoToken,
     });
 
-    const adapter = new PrismaLibSql(libsql);
+    // 3. Pass adapter to Prisma
     return new PrismaClient({ adapter });
   }
 
-  // Use local SQLite for development
+  // Dev: fall back to local SQLite using DATABASE_URL=file:...
   return new PrismaClient();
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
