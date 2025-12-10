@@ -4,17 +4,33 @@
 Write-Host "🚀 Setting up Turso database for production..." -ForegroundColor Cyan
 Write-Host ""
 
+# Check common install locations and add to PATH temporarily
+$possiblePaths = @(
+    "$env:USERPROFILE\.turso",
+    "$env:USERPROFILE\turso",
+    "C:\tools\turso",
+    "C:\Program Files\turso"
+)
+
+foreach ($path in $possiblePaths) {
+    if (Test-Path "$path\turso.exe") {
+        Write-Host "✅ Found Turso in $path" -ForegroundColor Green
+        $env:Path = "$path;$env:Path"
+        break
+    }
+}
+
 # Check if Turso CLI is installed
 $tursoInstalled = Get-Command turso -ErrorAction SilentlyContinue
 
 if (-not $tursoInstalled) {
     Write-Host "❌ Turso CLI not found. Installing..." -ForegroundColor Yellow
-    Write-Host "   Run: irm get.tur.so/install.ps1 | iex" -ForegroundColor Yellow
+    Write-Host "   Run: irm https://tur.so/install.ps1 | iex" -ForegroundColor Yellow
     Write-Host ""
     $install = Read-Host "Would you like to install Turso CLI now? (y/n)"
     
     if ($install -eq "y" -or $install -eq "Y") {
-        irm get.tur.so/install.ps1 | iex
+        irm https://tur.so/install.ps1 | iex
         Write-Host "✅ Turso CLI installed. Please restart your terminal and run this script again." -ForegroundColor Green
         exit
     } else {

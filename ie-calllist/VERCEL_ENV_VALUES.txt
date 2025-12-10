@@ -1,0 +1,25 @@
+# Vercel Environment Variables for IE Call List
+# Add these in Vercel Dashboard → Settings → Environment Variables
+
+DATABASE_URL=libsql://ie-calllist-avgjoe1017.aws-us-west-2.turso.io
+
+TURSO_DATABASE_URL=libsql://ie-calllist-avgjoe1017.aws-us-west-2.turso.io
+
+TURSO_AUTH_TOKEN=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NjUzNDI2MTYsImlkIjoiMWVkNzVhYmUtZGNhOC00N2MxLThhMDUtODYxNmY1OWJhMGQ1IiwicmlkIjoiYzJkM2IxODItMWQzMC00Y2I1LWFiNmYtODZmYmY2YTYwM2EwIn0.YRQZRfGMNMxlGjZJVMgeT9LP9Pq9xLEMoWlVG9h4ThHW2aQSqn55FNN0S1QkHYgG7R_Rjc1LZSQImvJQ4PNzCA
+
+SESSION_SECRET=642a5ebc03699069a42a0f6eac6a2f48
+
+NEXT_PUBLIC_APP_URL=https://your-project-name.vercel.app
+
+# Instructions:
+# 1. Get TURSO_AUTH_TOKEN from Turso dashboard (Create Token button)
+# 2. Replace "your-project-name" in NEXT_PUBLIC_APP_URL with your actual Vercel project URL
+# 3. Add all 5 variables to Vercel (Settings → Environment Variables)
+# 4. Select Production, Preview, and Development for each variable
+# 5. Redeploy your project
+
+# After deployment:
+# - Push Prisma schema: DATABASE_URL="libsql://ie-calllist-avgjoe1017.aws-us-west-2.turso.io?authToken=YOUR_TOKEN" npx prisma db push
+# - Create admin user (see PRODUCTION_INSTRUCTIONS.md)
+# - Import station data at /admin/import
+
