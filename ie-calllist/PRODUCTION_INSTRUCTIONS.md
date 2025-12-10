@@ -71,15 +71,50 @@ vercel
 
 ### 3. Configure Environment Variables in Vercel
 
-Add these in Vercel dashboard → Settings → Environment Variables:
+**⚠️ IMPORTANT:** You must add all 5 environment variables before your app will work in production.
 
-| Variable | Value |
-|----------|-------|
-| `DATABASE_URL` | `libsql://your-db.turso.io` |
-| `TURSO_DATABASE_URL` | `libsql://your-db.turso.io` |
-| `TURSO_AUTH_TOKEN` | `your-turso-token` |
-| `SESSION_SECRET` | `random-32-char-string` |
-| `NEXT_PUBLIC_APP_URL` | `https://your-domain.vercel.app` |
+#### Get Required Values
+
+1. **Get Database URL:**
+   ```bash
+   turso db show ie-calllist --url
+   ```
+   Copy the output (starts with `libsql://`)
+
+2. **Get Auth Token:**
+   ```bash
+   turso db tokens create ie-calllist
+   ```
+   Copy the entire token string
+
+3. **Generate SESSION_SECRET:**
+   ```bash
+   npx tsx scripts/generate-session-secret.ts
+   ```
+   Copy the generated 32-character string
+
+4. **Get Your Vercel URL:**
+   - After deployment, your URL will be: `https://your-project-name.vercel.app`
+   - Or use your custom domain if configured
+
+#### Add to Vercel
+
+Go to **Vercel Dashboard → Your Project → Settings → Environment Variables** and add:
+
+| Variable Name | Value | How to Get |
+|---------------|-------|------------|
+| `DATABASE_URL` | `libsql://your-db.turso.io` | `turso db show ie-calllist --url` |
+| `TURSO_DATABASE_URL` | `libsql://your-db.turso.io` | Same as above |
+| `TURSO_AUTH_TOKEN` | `your-turso-token` | `turso db tokens create ie-calllist` |
+| `SESSION_SECRET` | `random-32-char-string` | `npx tsx scripts/generate-session-secret.ts` |
+| `NEXT_PUBLIC_APP_URL` | `https://your-domain.vercel.app` | Your Vercel deployment URL |
+
+**For each variable:**
+- Select **Production**, **Preview**, and **Development** environments (or just Production)
+- Click **Save**
+- **Redeploy** your project after adding all variables
+
+📖 **See detailed guide:** `MD_DOCS/VERCEL_ENV_SETUP.md`
 
 ### 4. Push Schema to Production
 

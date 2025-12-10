@@ -285,10 +285,88 @@
 
 ---
 
-## Next Steps
+---
 
-1. **Generate PWA icons** from IE logo (placeholders in `/public/icons/`)
-2. **Test on mobile devices** - open http://localhost:3000 on phone
-3. **Set up Turso production database** for cloud deployment
-4. **Deploy to Vercel** following `PRODUCTION_INSTRUCTIONS.md`
+## December 9, 2024 - Vercel Environment Variables Setup
+
+### Vercel Deployment Configuration
+**Time:** Current session
+**Changes:**
+- Created comprehensive Vercel environment variables setup guide (`MD_DOCS/VERCEL_ENV_SETUP.md`)
+- Added helper script `scripts/generate-session-secret.ts` to generate secure 32-character SESSION_SECRET
+- Updated `PRODUCTION_INSTRUCTIONS.md` with detailed step-by-step instructions for all 5 required environment variables
+- Generated example SESSION_SECRET: `35c232df2778595b1685bb4070273e1f`
+
+**Required Vercel Environment Variables:**
+1. `DATABASE_URL` - Turso database URL (from `turso db show ie-calllist --url`)
+2. `TURSO_DATABASE_URL` - Same as DATABASE_URL
+3. `TURSO_AUTH_TOKEN` - Authentication token (from `turso db tokens create ie-calllist`)
+4. `SESSION_SECRET` - Random 32-character string for JWT signing (generated via script)
+5. `NEXT_PUBLIC_APP_URL` - Production Vercel URL (e.g., `https://your-project.vercel.app`)
+
+**Decision:** Created separate detailed guide document (`VERCEL_ENV_SETUP.md`) to provide step-by-step instructions with troubleshooting, while keeping `PRODUCTION_INSTRUCTIONS.md` as the main reference. This makes it easier for deployment without cluttering the main instructions file.
+
+**Files Created:**
+- `MD_DOCS/VERCEL_ENV_SETUP.md` - Complete guide with troubleshooting
+- `scripts/generate-session-secret.ts` - Helper script for secure secret generation
+
+**Files Updated:**
+- `PRODUCTION_INSTRUCTIONS.md` - Enhanced environment variables section with clear instructions
+
+---
+
+## December 9, 2024 - Deployment Preparation
+
+### PWA Icons Setup
+**Time:** Current session
+**Changes:**
+- Created `scripts/generate-icons.ts` to generate placeholder SVG icons for all required PWA sizes (72, 96, 128, 144, 152, 192, 384, 512)
+- Generated all 8 placeholder icons in `/public/icons/` directory
+- Created `public/icons/README.md` with instructions for converting SVG to PNG and using actual IE logo
+- Icons currently use blue background with "IE" text as placeholders
+
+**Decision:** Generated SVG placeholders to ensure directory structure exists. For production, these must be converted to PNG format using the actual Inside Edition logo. The manifest.json already references these icons correctly.
+
+### Vercel Configuration
+**Time:** Current session
+**Changes:**
+- Created `vercel.json` with Next.js framework configuration
+- Set build command to `npm run build` (includes Prisma generate)
+- Configured region to `iad1` (US East)
+
+**Decision:** Explicit Vercel config ensures proper build process and region selection for optimal performance.
+
+### Deployment Documentation
+**Time:** Current session
+**Changes:**
+- Created `MD_DOCS/DEPLOYMENT_CHECKLIST.md` - comprehensive step-by-step checklist for deployment
+- Created `scripts/setup-turso.ps1` - PowerShell script to automate Turso database setup on Windows
+- Updated `MD_DOCS/VERCEL_ENV_SETUP.md` with detailed environment variable instructions
+
+**Files Created:**
+- `vercel.json` - Vercel deployment configuration
+- `scripts/generate-icons.ts` - Icon generation script
+- `scripts/setup-turso.ps1` - Turso setup automation script
+- `MD_DOCS/DEPLOYMENT_CHECKLIST.md` - Complete deployment checklist
+- `public/icons/README.md` - Icon conversion instructions
+- `public/icons/*.svg` - 8 placeholder icon files
+
+**Decision:** Created automation scripts and comprehensive documentation to streamline deployment process and reduce manual errors.
+
+### Package.json Verification
+**Time:** Current session
+**Verified:**
+- Build script includes `prisma generate` before `next build` ✓
+- All required dependencies present (@libsql/client, @prisma/adapter-libsql) ✓
+- TypeScript and build tools properly configured ✓
+
+---
+
+## Next Steps (Remaining)
+
+1. **Convert PWA icons to PNG** - Use actual IE logo, convert SVG placeholders to PNG (see `public/icons/README.md`)
+2. **Set up Turso database** - Run `.\scripts\setup-turso.ps1` or follow manual steps in `MD_DOCS/VERCEL_ENV_SETUP.md`
+3. **Deploy to Vercel** - Connect GitHub repo and deploy (see `MD_DOCS/DEPLOYMENT_CHECKLIST.md`)
+4. **Add environment variables** - Add all 5 variables to Vercel (see `MD_DOCS/VERCEL_ENV_SETUP.md`)
+5. **Test deployment** - Verify app works, test PWA installation, test on mobile devices
 
