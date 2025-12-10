@@ -362,11 +362,65 @@
 
 ---
 
-## Next Steps (Remaining)
+## December 10, 2024 - Turso Integration & Production Build
 
-1. **Convert PWA icons to PNG** - Use actual IE logo, convert SVG placeholders to PNG (see `public/icons/README.md`)
-2. **Set up Turso database** - Run `.\scripts\setup-turso.ps1` or follow manual steps in `MD_DOCS/VERCEL_ENV_SETUP.md`
-3. **Deploy to Vercel** - Connect GitHub repo and deploy (see `MD_DOCS/DEPLOYMENT_CHECKLIST.md`)
-4. **Add environment variables** - Add all 5 variables to Vercel (see `MD_DOCS/VERCEL_ENV_SETUP.md`)
-5. **Test deployment** - Verify app works, test PWA installation, test on mobile devices
+### Turso Database Configuration
+**Time:** Current session
+**Changes:**
+- Created Turso database: `ie-calllist-avgjoe1017.aws-us-west-2.turso.io`
+- Generated authentication token for production access
+- Updated `lib/db.ts` to support both local SQLite (dev) and Turso (production)
+- Configured Prisma Client to dynamically use Turso URL with auth token in production
+- Updated `next.config.ts` to handle libsql external packages
+
+**Decision:** Used direct URL approach instead of libsql adapter to avoid Next.js 16 Turbopack compatibility issues. The Prisma Client now constructs the full database URL with auth token at runtime when TURSO_DATABASE_URL and TURSO_AUTH_TOKEN are present.
+
+### Production Build Success
+**Time:** Current session
+**Verified:**
+- Build completes successfully ✓
+- All routes compile correctly ✓
+- TypeScript validation passes ✓
+- Static and dynamic pages generated ✓
+
+### Environment Variables Ready
+**Time:** Current session
+**Configured:**
+1. `DATABASE_URL` = `libsql://ie-calllist-avgjoe1017.aws-us-west-2.turso.io`
+2. `TURSO_DATABASE_URL` = `libsql://ie-calllist-avgjoe1017.aws-us-west-2.turso.io`
+3. `TURSO_AUTH_TOKEN` = Generated from Turso dashboard
+4. `SESSION_SECRET` = `642a5ebc03699069a42a0f6eac6a2f48`
+5. `NEXT_PUBLIC_APP_URL` = To be set after Vercel deployment
+
+**Files Created:**
+- `VERCEL_ENV_VALUES.txt` - All environment variable values for easy copy-paste
+- `MD_DOCS/DEPLOYMENT_READY.md` - Complete deployment guide with all values
+- `MD_DOCS/TURSO_INSTALL.md` - Turso CLI installation instructions
+
+---
+
+## Next Steps (Ready for Deployment!)
+
+1. **Push to GitHub:**
+   ```bash
+   git add .
+   git commit -m "Production ready: Turso integration complete"
+   git push origin master
+   ```
+
+2. **Deploy to Vercel:**
+   - Import repository
+   - Set root directory to `ie-calllist`
+   - Add all 5 environment variables
+   - Redeploy
+
+3. **Push Database Schema:**
+   ```powershell
+   $env:DATABASE_URL="libsql://ie-calllist-avgjoe1017.aws-us-west-2.turso.io?authToken=YOUR_TOKEN"
+   npx prisma db push
+   ```
+
+4. **Import Station Data** at `/admin/import`
+
+📖 **See `MD_DOCS/DEPLOYMENT_READY.md` for complete step-by-step instructions**
 
