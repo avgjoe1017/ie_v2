@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
 import bcrypt from 'bcryptjs';
 import { prisma } from './db';
+import type { Role } from '@/domain/contracts';
 
 const SESSION_COOKIE = 'ie-session';
 const SESSION_EXPIRY = 60 * 60 * 24 * 7; // 7 days in seconds
@@ -17,14 +18,14 @@ function getSecretKey() {
 export interface SessionPayload {
   userId: string;
   name: string;
-  role: 'producer' | 'admin';
+  role: Role;
   exp?: number;
 }
 
 /**
  * Creates a session token for a user
  */
-export async function createSession(user: { id: string; name: string; role: string }): Promise<string> {
+export async function createSession(user: { id: string; name: string; role: Role }): Promise<string> {
   const token = await new SignJWT({
     userId: user.id,
     name: user.name,

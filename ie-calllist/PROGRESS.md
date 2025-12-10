@@ -445,6 +445,14 @@
 
 **Decision:** Kept existing `producer` and `admin` role semantics to avoid breaking current users, while introducing a new `viewer` role to satisfy the requirement for explicit read-only access. Mapped the three levels to user-facing labels in the admin UI so admins can clearly assign "read", "read & write", and "admin (full)" permissions when managing PINs.
 
+## December 10, 2025 - Session Role Typing Fix
+
+**Time:** Current session  
+**Changes:**
+- Updated `lib/auth.ts` so the `SessionPayload.role` field is typed as the shared `Role` union from `domain/contracts.ts` (now `viewer` | `producer` | `admin`) and tightened `createSession`’s parameter type accordingly. This ensures all APIs that consume `getSession()` can safely branch on `viewer` without TypeScript treating the comparison as impossible, unblocking the build error in `app/api/call-logs/route.ts`.
+
+**Decision:** Centralized role typing around the domain `Role` type to keep auth/session payloads and API guards in sync as we evolve permission levels.
+
 ## December 10, 2025 - Minor Lint Cleanup
 
 **Time:** Current session  
