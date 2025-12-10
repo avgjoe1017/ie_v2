@@ -15,20 +15,20 @@ export const PhoneNumberSchema = z.object({
   id: z.string().uuid(),
   stationId: z.string().uuid(),
   label: z.string().min(1, 'Label is required'),
-  number: z.string().min(10, 'Phone number must be at least 10 digits'),
+  number: z.string().min(7, 'Phone number must be at least 7 digits'),
   sortOrder: z.number().int().min(1).max(4),
   createdAt: z.date(),
 });
 
 export const CreatePhoneSchema = z.object({
   label: z.string().min(1, 'Label is required'),
-  number: z.string().min(10, 'Phone number must be at least 10 digits'),
+  number: z.string().min(7, 'Phone number must be at least 7 digits'),
   sortOrder: z.number().int().min(1).max(4).optional(),
 });
 
 export const UpdatePhoneSchema = z.object({
   label: z.string().min(1, 'Label is required').optional(),
-  number: z.string().min(10, 'Phone number must be at least 10 digits').optional(),
+  number: z.string().min(7, 'Phone number must be at least 7 digits').optional(),
   sortOrder: z.number().int().min(1).max(4).optional(),
 });
 

@@ -1,8 +1,27 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaLibSql } from '@prisma/adapter-libsql';
 import fs from 'fs';
 import path from 'path';
 
-const prisma = new PrismaClient();
+function createPrismaClient() {
+  const tursoUrl = process.env.TURSO_DATABASE_URL;
+  const tursoToken = process.env.TURSO_AUTH_TOKEN;
+
+  // If Turso credentials are present, use libsql adapter (Turso)
+  if (tursoUrl && tursoToken) {
+    const adapter = new PrismaLibSql({
+      url: tursoUrl,
+      authToken: tursoToken,
+    });
+
+    return new PrismaClient({ adapter });
+  }
+
+  // Otherwise fall back to default datasource (local SQLite via DATABASE_URL)
+  return new PrismaClient();
+}
+
+const prisma = createPrismaClient();
 
 function parseCSVLine(line: string): string[] {
   const values: string[] = [];
@@ -54,14 +73,14 @@ function cleanPhone(phone: string): string | null {
   // Need at least 7 digits for a valid phone (local numbers)
   if (digits.length < 7) return null;
   
-  // If 10+ digits, format as US number
+  // If 10+ digits, format as US number (keep last 10 as +1XXXXXXXXXX)
   if (digits.length >= 10) {
     const last10 = digits.slice(-10);
     return `+1${last10}`;
   }
   
-  // For 7-digit local numbers, assume they need area code - skip them
-  return null;
+  // For 7-9 digit local numbers, keep the digits as-is
+  return digits;
 }
 
 async function main() {
