@@ -53,7 +53,8 @@ export default function EditStationPage() {
     setError(undefined);
 
     try {
-      await marketsApi.update(id, {
+      // Save station core fields
+      const updated = await marketsApi.update(id, {
         callLetters,
         marketName,
         feed,
@@ -62,17 +63,53 @@ export default function EditStationPage() {
         airTimeET,
       });
 
-      // Update phones
+      // Sync phones: create, update, delete based on differences
+      const originalPhones = station?.phones ?? [];
+
+      const originalById = new Map(originalPhones.map((p) => [p.id, p]));
+      const currentById = new Map(phones.map((p) => [p.id, p]));
+
+      // Create or update current phones
       for (const phone of phones) {
-        await fetch(`/api/markets/${id}/phones/${phone.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            label: phone.label,
-            number: formatE164(phone.number),
-            sortOrder: phone.sortOrder,
-          }),
-        });
+        const isNew = phone.id.startsWith('new-');
+        const payload = {
+          label: phone.label,
+          number: formatE164(phone.number),
+          sortOrder: phone.sortOrder,
+        };
+
+        if (isNew) {
+          // Create new phone
+          await fetch(`/api/markets/${id}/phones`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        } else {
+          const original = originalById.get(phone.id);
+          if (
+            original &&
+            (original.label !== phone.label ||
+              original.number !== phone.number ||
+              original.sortOrder !== phone.sortOrder)
+          ) {
+            // Update existing phone
+            await fetch(`/api/markets/${id}/phones/${phone.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+          }
+        }
+      }
+
+      // Delete removed phones
+      for (const original of originalPhones) {
+        if (!currentById.has(original.id)) {
+          await fetch(`/api/markets/${id}/phones/${original.id}`, {
+            method: 'DELETE',
+          });
+        }
       }
 
       router.push(`/stations/${id}`);
