@@ -173,20 +173,20 @@ export function Header({ showBack = false, title }: HeaderProps) {
             );
           })}
 
-          {/* Sort by Time toggle */}
+          {/* Sort by Time toggle (icon only) */}
           <button
             onClick={toggleSortByTime}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
+            className={`p-2 rounded-full transition-all flex items-center justify-center ${
               sortByTime
                 ? 'bg-blue-600 text-white shadow-sm'
                 : 'bg-gray-100 text-gray-600 border border-transparent hover:border-gray-300'
             }`}
             aria-pressed={sortByTime}
+            aria-label="Sort by ET time"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h8M8 12h5M8 17h2" />
             </svg>
-            <span>Sort ET</span>
           </button>
         </div>
       </div>
