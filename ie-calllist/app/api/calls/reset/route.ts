@@ -10,7 +10,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Delete all recent calls (they're still preserved in CallLog for audit)
-    await prisma.recentCall.deleteMany({});
+    try {
+      await prisma.recentCall.deleteMany({});
+    } catch (error) {
+      // If RecentCall table doesn't exist yet, return success anyway
+      console.warn('RecentCall deleteMany failed (table may not exist):', error);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -17,16 +17,22 @@ export async function GET(request: NextRequest) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Get all numbers called today
-    const recentCalls = await prisma.recentCall.findMany({
-      where: {
-        calledAt: { gte: today },
-      },
-      select: {
-        number: true,
-        calledAt: true,
-      },
-    });
+    // Get all numbers called today (with error handling for missing table)
+    let recentCalls: Array<{ number: string; calledAt: Date }> = [];
+    try {
+      recentCalls = await prisma.recentCall.findMany({
+        where: {
+          calledAt: { gte: today },
+        },
+        select: {
+          number: true,
+          calledAt: true,
+        },
+      });
+    } catch (error) {
+      // If RecentCall table doesn't exist yet (e.g., production DB not migrated), continue without it
+      console.warn('RecentCall table not available:', error);
+    }
 
     // Build lookup map: number -> calledAt timestamp
     const calledNumbers = new Map<string, Date>(

@@ -85,19 +85,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Transaction: create CallLog + upsert RecentCall
-    const [log] = await prisma.$transaction([
-      // Audit trail (existing)
-      prisma.callLog.create({
-        data: {
-          stationId: result.data.stationId,
-          phoneId: result.data.phoneId,
-          phoneNumber: result.data.phoneNumber,
-          calledBy: session.userId,
-        },
-      }),
-      // Recent call tracking (new)
-      prisma.recentCall.upsert({
+    // Create call log first
+    const log = await prisma.callLog.create({
+      data: {
+        stationId: result.data.stationId,
+        phoneId: result.data.phoneId,
+        phoneNumber: result.data.phoneNumber,
+        calledBy: session.userId,
+      },
+    });
+
+    // Upsert RecentCall (with error handling for missing table)
+    try {
+      await prisma.recentCall.upsert({
         where: { number: result.data.phoneNumber },
         update: {
           calledAt: new Date(),
@@ -107,8 +107,11 @@ export async function POST(request: NextRequest) {
           number: result.data.phoneNumber,
           calledBy: session.userId,
         },
-      }),
-    ]);
+      });
+    } catch (error) {
+      // If RecentCall table doesn't exist yet, log warning but don't fail the call log
+      console.warn('RecentCall upsert failed (table may not exist):', error);
+    }
 
     return NextResponse.json({ log }, { status: 201 });
   } catch (error) {

@@ -63,6 +63,15 @@ CREATE TABLE IF NOT EXISTS EditLog (
     FOREIGN KEY (editedBy) REFERENCES User(id) ON DELETE CASCADE
 );
 
+-- RecentCall table (for shared phone call tracking)
+CREATE TABLE IF NOT EXISTS RecentCall (
+    id TEXT PRIMARY KEY NOT NULL,
+    number TEXT NOT NULL UNIQUE,
+    calledAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    calledBy TEXT NOT NULL,
+    FOREIGN KEY (calledBy) REFERENCES User(id) ON DELETE CASCADE
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_station_market_feed ON Station(marketNumber, feed);
 CREATE INDEX IF NOT EXISTS idx_phonenumber_station ON PhoneNumber(stationId);
@@ -70,6 +79,8 @@ CREATE INDEX IF NOT EXISTS idx_calllog_station ON CallLog(stationId);
 CREATE INDEX IF NOT EXISTS idx_calllog_user ON CallLog(calledBy);
 CREATE INDEX IF NOT EXISTS idx_editlog_station ON EditLog(stationId);
 CREATE INDEX IF NOT EXISTS idx_editlog_user ON EditLog(editedBy);
+CREATE INDEX IF NOT EXISTS idx_recentcall_number ON RecentCall(number);
+CREATE INDEX IF NOT EXISTS idx_recentcall_calledat ON RecentCall(calledAt);
 
 -- Insert default admin user (PIN: 123456)
 -- Password hash for "123456" using bcrypt
