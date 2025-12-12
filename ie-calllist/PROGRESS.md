@@ -497,4 +497,16 @@
 
 **Decision:** App is now light mode only for all users. Removed all theme switching functionality to simplify the codebase and user experience. Dark mode CSS classes remain in components but won't be activated since the `dark` class is never added to the document root.
 
+## December 10, 2025 - Settings Page Enhancements
+
+**Time:** Current session  
+**Changes:**
+- Added "Account" section to Settings page displaying current user name and role
+- Used React Query (`useQuery`) to fetch current user data from `/api/auth/me`
+- Added `getRoleLabel()` helper function to format role display names (Admin, Producer, Viewer)
+- Updated Support email link to `joe.balewski@cbs.com` with subject "IE CALL LIST ISSUE"
+- Sign Out button remains unchanged with proper styling and functionality
+
+**Decision:** User info is displayed at the top of the settings page for clarity. React Query is used for efficient data fetching and caching. Email link opens default email client with pre-filled recipient and subject.
+
 

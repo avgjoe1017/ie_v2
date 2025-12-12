@@ -2,11 +2,33 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { Header } from '@/components/Header';
 import { authApi } from '@/lib/api';
 
+function getRoleLabel(role: string): string {
+  switch (role) {
+    case 'admin':
+      return 'Admin';
+    case 'producer':
+      return 'Producer';
+    case 'viewer':
+      return 'Viewer';
+    default:
+      return role;
+  }
+}
+
 export default function SettingsPage() {
   const router = useRouter();
+
+  const { data: userData } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const response = await authApi.me();
+      return response.user;
+    },
+  });
 
   const handleLogout = async () => {
     await authApi.logout();
@@ -19,6 +41,25 @@ export default function SettingsPage() {
       <Header showBack title="Settings" />
       
       <main className="max-w-md mx-auto px-4 py-4 space-y-3">
+        {/* User Info */}
+        {userData && (
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wide px-4 pt-4 pb-2">
+              Account
+            </h2>
+            <div className="px-4 pb-4 space-y-2">
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Name</p>
+                <p className="text-sm font-medium text-gray-900 mt-0.5">{userData.name}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Role</p>
+                <p className="text-sm font-medium text-gray-900 mt-0.5">{getRoleLabel(userData.role)}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* History */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wide px-4 pt-4 pb-2">
@@ -61,7 +102,7 @@ export default function SettingsPage() {
           </h2>
           
           <a
-            href="mailto:support@insideedition.com?subject=IE Call List Issue"
+            href="mailto:joe.balewski@cbs.com?subject=IE CALL LIST ISSUE"
             className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center gap-2.5">
