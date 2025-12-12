@@ -83,17 +83,36 @@ export function StationCard({
 
     const status = String(broadcastStatus).toLowerCase();
 
-    let label = 'MIGHT';
-    if (status === 'live') label = 'LIVE';
-    else if (status === 'rerack') label = 'RERACK';
+    const config: Record<
+      string,
+      { label: string; className: string }
+    > = {
+      live: {
+        label: 'LIVE',
+        className:
+          'bg-gradient-emerald text-emerald-100 border border-emerald-400/30 shadow-emerald shadow-button',
+      },
+      rerack: {
+        label: 'RERACK',
+        className:
+          'bg-gradient-amber text-amber-100 border border-amber-400/30 shadow-amber shadow-button',
+      },
+      might: {
+        label: 'MIGHT',
+        className:
+          'bg-slate-500/20 text-slate-400 border border-slate-500/30',
+      },
+    };
+
+    const statusConfig = config[status];
+    if (!statusConfig) return null;
 
     return (
       <div
-        className="h-3.5 px-2 py-1.5 rounded-xl inline-flex justify-center items-center gap-1"
-        style={{ backgroundColor: getFeedColor(feed) }}
+        className={`h-3.5 px-2 py-1.5 rounded-md inline-flex justify-center items-center gap-1 text-[10px] font-semibold ${statusConfig.className}`}
       >
-        <div className="text-white text-[10px] font-semibold font-['Inter']">
-          {label}
+        <div className="font-['Inter']">
+          {statusConfig.label}
         </div>
       </div>
     );
