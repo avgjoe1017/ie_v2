@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { Feed } from '@/domain/contracts';
 
 interface FilterState {
@@ -24,41 +23,6 @@ export const useFilterStore = create<FilterState>()((set) => ({
     })),
   clearFilters: () => set({ feedFilter: 'all', searchQuery: '', sortByTime: false }),
 }));
-
-interface ThemeState {
-  theme: 'light' | 'dark' | 'system';
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
-}
-
-export const useThemeStore = create<ThemeState>()(
-  persist(
-    (set) => ({
-      theme: 'system',
-      setTheme: (theme) => {
-        set({ theme });
-        // Apply theme immediately
-        if (typeof window !== 'undefined') {
-          const root = document.documentElement;
-          if (theme === 'dark') {
-            root.classList.add('dark');
-          } else if (theme === 'light') {
-            root.classList.remove('dark');
-          } else {
-            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (systemDark) {
-              root.classList.add('dark');
-            } else {
-              root.classList.remove('dark');
-            }
-          }
-        }
-      },
-    }),
-    {
-      name: 'ie-theme',
-    }
-  )
-);
 
 interface CallDialogState {
   isOpen: boolean;

@@ -481,8 +481,20 @@
 
 **Time:** Current session  
 **Changes:**
-- Applied the same `new Date()` / `setDate` pattern to `app/logs/edits/page.tsx` to replace the `Date.now`-based `yesterday` calculation, eliminating the impure-function warning while preserving the “Today / Yesterday” grouping behavior in the edit history view.
+- Applied the same `new Date()` / `setDate` pattern to `app/logs/edits/page.tsx` to replace the `Date.now`-based `yesterday` calculation, eliminating the impure-function warning while preserving the "Today / Yesterday" grouping behavior in the edit history view.
 
-**Decision:** Kept the date-labeling logic consistent across call and edit logs while adhering to React’s purity requirements for server components.
+**Decision:** Kept the date-labeling logic consistent across call and edit logs while adhering to React's purity requirements for server components.
+
+## December 10, 2025 - Removed Dark Mode and System Theme Settings
+
+**Time:** Current session  
+**Changes:**
+- Removed theme selector (light/dark/system) from Settings page (`app/settings/page.tsx`)
+- Removed `useThemeStore` from `lib/store.ts` as it's no longer needed
+- Simplified `lib/providers.tsx` by removing `ThemeProvider` component and all theme switching logic
+- Updated `app/layout.tsx` to remove `className="dark"` from `<html>` tag and simplified viewport `themeColor` to single light mode color
+- Removed unused `persist` import from `lib/store.ts`
+
+**Decision:** App is now light mode only for all users. Removed all theme switching functionality to simplify the codebase and user experience. Dark mode CSS classes remain in components but won't be activated since the `dark` class is never added to the document root.
 
 

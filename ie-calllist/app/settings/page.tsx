@@ -3,12 +3,10 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
-import { useThemeStore } from '@/lib/store';
 import { authApi } from '@/lib/api';
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { theme, setTheme } = useThemeStore();
 
   const handleLogout = async () => {
     await authApi.logout();
@@ -21,32 +19,6 @@ export default function SettingsPage() {
       <Header showBack title="Settings" />
       
       <main className="max-w-md mx-auto px-4 py-4 space-y-3">
-        {/* Theme */}
-        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-          <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
-            Appearance
-          </h2>
-          
-          <div className="grid grid-cols-3 gap-1.5">
-            {(['light', 'dark', 'system'] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTheme(t)}
-                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                  theme === t
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                {t === 'light' && '☀️ '}
-                {t === 'dark' && '🌙 '}
-                {t === 'system' && '💻 '}
-                {t.charAt(0).toUpperCase() + t.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* History */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wide px-4 pt-4 pb-2">
