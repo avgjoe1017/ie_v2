@@ -509,4 +509,56 @@
 
 **Decision:** User info is displayed at the top of the settings page for clarity. React Query is used for efficient data fetching and caching. Email link opens default email client with pre-filled recipient and subject.
 
+## December 10, 2025 - Shared Phone Call Tracking Implementation
+
+**Time:** Current session  
+**Changes:**
+- Added `RecentCall` model to Prisma schema to track phone numbers called today (deduplicated by number)
+- Updated `POST /api/call-logs` to upsert `RecentCall` when a call is logged (transaction ensures both CallLog and RecentCall are created)
+- Updated `GET /api/markets` to annotate stations with `calledToday` and `calledAt` fields based on RecentCall data
+- Created `POST /api/calls/reset` endpoint to manually clear all call indicators (preserves CallLog audit trail)
+- Updated `StationCard` component to display green phone icon and checkmark when `calledToday` is true
+- Updated `app/stations/page.tsx` to fetch RecentCall data and annotate stations before passing to StationList
+- Updated `StationList` component to pass `calledToday` and `calledAt` props to StationCard
+- Added "Call Tracking" section to Settings page with "Clear Call Indicators" button that resets all green icons
+
+**Database Changes:**
+- New `RecentCall` table with `number` (unique, E.164 format), `calledAt`, and `calledBy` fields
+- Indexes on `number` and `calledAt` for efficient queries
+- Foreign key relationship to `User` table
+
+**Visual Changes:**
+- Green phone icon (emerald-100 background, emerald-600 icon) appears on station cards when that phone number was called today
+- Green checkmark (✓) appears next to phone number when called
+- Phone number text changes to emerald-700 when called
+- All stations sharing the same phone number show the green indicator simultaneously
+
+**Reset Behavior:**
+- Daily auto-reset: Indicators clear at midnight local time (handled by `calledAt >= today` query)
+- Manual reset: "Clear Call Indicators" button in Settings clears all RecentCall records and refreshes the station list
+
+**Decision:** Used upsert pattern on phone number to deduplicate calls - only need to know IF a number was called today, not every individual call. RecentCall is separate from CallLog to allow resetting indicators without losing audit history. Green color (emerald) chosen to clearly indicate "called" status while maintaining good contrast and readability.
+
+**Next Steps:**
+- Run database migration: `npx prisma migrate dev --name add_recent_calls`
+- Or for production: `npx prisma db push` (if using Turso)
+
+## December 10, 2025 - User Guide Creation
+
+**Time:** Current session  
+**Changes:**
+- Created comprehensive `HOW_TO_INSTALL_AND_USE.md` guide in layman's terms for the team
+- Guide covers:
+  - Part 1: Developer setup (local installation, dependencies, database setup)
+  - Part 2: End user guide (logging in, searching, making calls, editing, viewing history)
+  - Part 3: Troubleshooting and common questions
+  - Part 4: Admin management tasks (user creation, PIN reset, CSV import)
+  - Part 5: Technical reference details
+- Written in simple, non-technical language accessible to all team members
+- Includes quick reference card for common tasks
+- Explains user roles (Viewer, Producer, Admin) and their permissions
+- Documents PWA installation process for iOS and Android
+- Provides step-by-step instructions for all major features
+
+**Decision:** Created a single comprehensive guide that serves both technical developers setting up the app and non-technical end users who need to use it daily. Used clear language, organized sections, and practical examples to make it accessible to everyone on the team. The guide serves as the primary reference document for installation and usage.
 

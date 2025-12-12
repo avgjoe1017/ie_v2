@@ -22,6 +22,8 @@ interface StationCardProps {
   airTimeLocal: string;
   airTimeET: string;
   phones: Phone[];
+  calledToday?: boolean;
+  calledAt?: string | null;
 }
 
 export function StationCard({
@@ -34,6 +36,8 @@ export function StationCard({
   airTimeLocal,
   airTimeET,
   phones,
+  calledToday = false,
+  calledAt = null,
 }: StationCardProps) {
   const primaryPhone = phones.find((p) => p.sortOrder === 1) || phones[0];
 
@@ -163,9 +167,30 @@ export function StationCard({
 
             {/* Phone Number + Contact Label */}
             <div className="h-4 flex items-center gap-2">
-              <span className="text-neutral-800 text-[10px] font-bold font-['Inter'] leading-4 tracking-tight">
+              {/* Phone icon — green if called today, muted otherwise */}
+              <div
+                className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 ${
+                  calledToday ? 'bg-emerald-100' : 'bg-gray-100'
+                }`}
+              >
+                <svg
+                  className={`w-2.5 h-2.5 ${calledToday ? 'text-emerald-600' : 'text-gray-400'}`}
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                </svg>
+              </div>
+              <span
+                className={`text-[10px] font-bold font-['Inter'] leading-4 tracking-tight ${
+                  calledToday ? 'text-emerald-700' : 'text-neutral-800'
+                }`}
+              >
                 {formatDisplay(primaryPhone.number)}
               </span>
+              {calledToday && (
+                <span className="text-[10px] text-emerald-600 font-medium">✓</span>
+              )}
               {primaryPhone.label && (
                 <div className="h-3.5 px-2 py-1.5 bg-gray-200 rounded-xl inline-flex justify-center items-center gap-1">
                   <div className="text-neutral-800 text-[10px] font-semibold font-['Inter']">

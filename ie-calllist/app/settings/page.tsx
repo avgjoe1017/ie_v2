@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Header } from '@/components/Header';
 import { authApi } from '@/lib/api';
 
@@ -21,6 +22,8 @@ function getRoleLabel(role: string): string {
 
 export default function SettingsPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [resetting, setResetting] = useState(false);
 
   const { data: userData } = useQuery({
     queryKey: ['currentUser'],
@@ -34,6 +37,35 @@ export default function SettingsPage() {
     await authApi.logout();
     router.push('/login');
     router.refresh();
+  };
+
+  const handleReset = async () => {
+    if (
+      !confirm(
+        "Clear all call indicators? This won't delete your call history."
+      )
+    ) {
+      return;
+    }
+
+    setResetting(true);
+
+    try {
+      const response = await fetch('/api/calls/reset', { method: 'POST' });
+      if (!response.ok) {
+        throw new Error('Failed to reset');
+      }
+
+      // Invalidate stations query to refresh indicators
+      await queryClient.invalidateQueries({ queryKey: ['stations'] });
+      await queryClient.invalidateQueries({ queryKey: ['markets'] });
+
+      alert('Call indicators cleared.');
+    } catch (error) {
+      alert('Failed to reset. Try again.');
+    } finally {
+      setResetting(false);
+    }
   };
 
   return (
@@ -93,6 +125,37 @@ export default function SettingsPage() {
               </svg>
             </Link>
           </div>
+        </div>
+
+        {/* Call Tracking */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wide px-4 pt-4 pb-2">
+            Call Tracking
+          </h2>
+          
+          <button
+            onClick={handleReset}
+            disabled={resetting}
+            className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="text-sm">🔄</span>
+              <div>
+                <div className="text-sm text-gray-700 font-medium">
+                  Clear Call Indicators
+                </div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  Reset the green phone icons. Call history is preserved.
+                </div>
+              </div>
+            </div>
+            {resetting && (
+              <svg className="w-4 h-4 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            )}
+          </button>
         </div>
 
         {/* Support */}

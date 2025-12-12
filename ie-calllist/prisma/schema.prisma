@@ -15,8 +15,9 @@ model User {
   role      String   @default("producer") // "producer" | "admin"
   createdAt DateTime @default(now())
   
-  callLogs  CallLog[]
-  editLogs  EditLog[]
+  callLogs    CallLog[]
+  editLogs    EditLog[]
+  recentCalls RecentCall[]
 }
 
 model Station {
@@ -75,4 +76,16 @@ model EditLog {
 
   station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [editedBy], references: [id], onDelete: Cascade)
+}
+
+model RecentCall {
+  id       String   @id @default(uuid())
+  number   String   @unique // E.164 format — deduplicated
+  calledAt DateTime @default(now())
+  calledBy String
+
+  user User @relation(fields: [calledBy], references: [id], onDelete: Cascade)
+
+  @@index([number])
+  @@index([calledAt])
 }

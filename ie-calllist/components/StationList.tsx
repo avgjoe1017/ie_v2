@@ -23,6 +23,8 @@ interface Station {
   airTimeLocal: string;
   airTimeET: string;
   phones: Phone[];
+  calledToday?: boolean;
+  calledAt?: string | null;
 }
 
 interface StationListProps {
@@ -154,6 +156,8 @@ export function StationList({ stations }: StationListProps) {
             airTimeLocal={station.airTimeLocal}
             airTimeET={station.airTimeET}
             phones={station.phones}
+            calledToday={station.calledToday}
+            calledAt={station.calledAt}
           />
         ))}
       </div>

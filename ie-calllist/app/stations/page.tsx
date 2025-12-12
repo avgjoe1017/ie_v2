@@ -11,6 +11,26 @@ export default async function StationsPage() {
     redirect('/login');
   }
 
+  // Calculate start of today (midnight local time)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Get all numbers called today
+  const recentCalls = await prisma.recentCall.findMany({
+    where: {
+      calledAt: { gte: today },
+    },
+    select: {
+      number: true,
+      calledAt: true,
+    },
+  });
+
+  // Build lookup map: number -> calledAt timestamp
+  const calledNumbers = new Map<string, Date>(
+    recentCalls.map((c) => [c.number, c.calledAt])
+  );
+
   // Fetch all stations with phones
   const stations = await prisma.station.findMany({
     where: { isActive: true },
@@ -22,13 +42,27 @@ export default async function StationsPage() {
     orderBy: { marketNumber: 'asc' },
   });
 
+  // Annotate each station with calledToday status
+  const annotatedStations = stations.map((station) => {
+    // Check if ANY of this station's phone numbers were called today
+    const calledPhone = station.phones.find((p) => calledNumbers.has(p.number));
+
+    return {
+      ...station,
+      calledToday: calledPhone ? true : false,
+      calledAt: calledPhone
+        ? calledNumbers.get(calledPhone.number)?.toISOString() ?? null
+        : null,
+    };
+  });
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
       
       <main className="max-w-md mx-auto pb-20">
         {/* Station List */}
-        <StationList stations={stations} />
+        <StationList stations={annotatedStations} />
       </main>
     </div>
   );

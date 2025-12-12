@@ -85,15 +85,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create call log
-    const log = await prisma.callLog.create({
-      data: {
-        stationId: result.data.stationId,
-        phoneId: result.data.phoneId,
-        phoneNumber: result.data.phoneNumber,
-        calledBy: session.userId,
-      },
-    });
+    // Transaction: create CallLog + upsert RecentCall
+    const [log] = await prisma.$transaction([
+      // Audit trail (existing)
+      prisma.callLog.create({
+        data: {
+          stationId: result.data.stationId,
+          phoneId: result.data.phoneId,
+          phoneNumber: result.data.phoneNumber,
+          calledBy: session.userId,
+        },
+      }),
+      // Recent call tracking (new)
+      prisma.recentCall.upsert({
+        where: { number: result.data.phoneNumber },
+        update: {
+          calledAt: new Date(),
+          calledBy: session.userId,
+        },
+        create: {
+          number: result.data.phoneNumber,
+          calledBy: session.userId,
+        },
+      }),
+    ]);
 
     return NextResponse.json({ log }, { status: 201 });
   } catch (error) {
