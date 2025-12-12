@@ -27,9 +27,15 @@ export default async function StationsPage() {
         calledAt: true,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     // If RecentCall table doesn't exist yet (e.g., production DB not migrated), continue without it
-    console.warn('RecentCall table not available:', error);
+    const errorMessage = error?.message || String(error);
+    if (errorMessage.includes('no such table') || errorMessage.includes('RecentCall')) {
+      console.warn('RecentCall table not available - feature will work without call indicators');
+    } else {
+      // Re-throw unexpected errors
+      throw error;
+    }
   }
 
   // Build lookup map: number -> calledAt timestamp

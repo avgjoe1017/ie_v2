@@ -108,9 +108,15 @@ export async function POST(request: NextRequest) {
           calledBy: session.userId,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       // If RecentCall table doesn't exist yet, log warning but don't fail the call log
-      console.warn('RecentCall upsert failed (table may not exist):', error);
+      const errorMessage = error?.message || String(error);
+      if (errorMessage.includes('no such table') || errorMessage.includes('RecentCall')) {
+        console.warn('RecentCall table not available - call logged but indicators disabled');
+      } else {
+        // Re-throw unexpected errors
+        throw error;
+      }
     }
 
     return NextResponse.json({ log }, { status: 201 });

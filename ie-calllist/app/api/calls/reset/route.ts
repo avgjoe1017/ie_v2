@@ -12,9 +12,15 @@ export async function POST(request: NextRequest) {
     // Delete all recent calls (they're still preserved in CallLog for audit)
     try {
       await prisma.recentCall.deleteMany({});
-    } catch (error) {
+    } catch (error: any) {
       // If RecentCall table doesn't exist yet, return success anyway
-      console.warn('RecentCall deleteMany failed (table may not exist):', error);
+      const errorMessage = error?.message || String(error);
+      if (errorMessage.includes('no such table') || errorMessage.includes('RecentCall')) {
+        // Table doesn't exist - that's fine, nothing to reset
+        return NextResponse.json({ success: true, message: 'No call indicators to reset' });
+      }
+      // Re-throw unexpected errors
+      throw error;
     }
 
     return NextResponse.json({ success: true });
