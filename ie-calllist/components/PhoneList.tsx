@@ -37,10 +37,10 @@ export function PhoneList({ stationId, stationName, callLetters, phones }: Phone
               phoneNumber: phone.number,
             })
           }
-          className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-700/30 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-left group"
+          className="w-full flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors text-left group shadow-sm"
         >
           {/* Phone icon */}
-          <div className="shrink-0 w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+          <div className="shrink-0 w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 group-hover:bg-blue-100 transition-colors">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -58,21 +58,21 @@ export function PhoneList({ stationId, stationName, callLetters, phones }: Phone
 
           {/* Contact info */}
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-gray-900 dark:text-white truncate">
+            <p className="text-sm font-semibold text-gray-900 truncate">
               {phone.label}
               {index === 0 && (
-                <span className="ml-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-normal">
+                <span className="ml-1.5 text-xs text-gray-500 font-normal">
                   Primary
                 </span>
               )}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+            <p className="text-sm text-gray-700 font-mono mt-0.5">
               {formatDisplay(phone.number)}
             </p>
           </div>
 
           {/* Call indicator */}
-          <div className="shrink-0 text-gray-300 dark:text-gray-600 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">
+          <div className="shrink-0 text-gray-400 group-hover:text-blue-500 transition-colors">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -91,7 +91,7 @@ export function PhoneList({ stationId, stationName, callLetters, phones }: Phone
       ))}
 
       {phones.length === 0 && (
-        <p className="text-center py-6 text-xs text-gray-400 dark:text-gray-500">
+        <p className="text-center py-6 text-sm text-gray-500">
           No phone numbers available
         </p>
       )}
